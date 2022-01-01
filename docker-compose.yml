@@ -1,0 +1,39 @@
+version: '3'
+
+networks: 
+    pweb_foosha_2:
+        driver: bridge
+
+services:
+    pweb_mysql:
+        image: mysql
+        restart: unless-stopped
+        tty: true
+        ports: 
+            - "4307:3306"
+        volumes: 
+            - ./mysql:/var/lib/mysql
+        environment: 
+            MYSQL_DATABASE: laravel_docker
+            MYSQL_USER: user
+            MYSQL_PASSWORD: user
+            MYSQL_ROOT_PASSWORD: root
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        networks: 
+            - pweb_foosha_2
+
+    pweb_php:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        tty: true
+        working_dir: /var/www/app
+        volumes: 
+            - ./src:/var/www/app
+        ports: 
+            - "9001:9001"
+        networks:
+            - pweb_foosha_2
+        command: sh -c "php -S 0.0.0.0:9001 index.php"
